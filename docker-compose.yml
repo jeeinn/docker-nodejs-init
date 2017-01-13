@@ -1,0 +1,33 @@
+version: '2'
+services:
+    redis:
+        image: redis:alpine
+        container_name: cache-redis
+        ports:
+            - 6379:6379
+        restart: on-failure:3
+
+    mongodb:
+        image: mvertes/alpine-mongo
+        container_name: db-mongo
+        volumes:
+            - ./deploy/db:/data/db
+        ports:
+            - 27017:27017
+        depends_on:
+            - redis
+        restart: on-failure:3
+
+    # 应用
+    myapp:
+        build: .
+        container_name: myapp
+        links:
+          - redis
+          - mongodb
+        ports:
+          - 3000:3000
+        restart: on-failure:3
+#        command: npm start
+
+
